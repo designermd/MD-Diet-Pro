@@ -1,49 +1,8 @@
 package com.mddiet.pro;
-
-import android.app.*;
-import android.content.*;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import java.util.Calendar;
-
+import android.app.*;import android.content.*;import android.content.pm.PackageManager;import android.os.Build;import java.util.Calendar;
 public class AlarmReceiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        NotificationScheduler.createChannel(context);
-
-        int meal = intent.getIntExtra("mealIndex", 0);
-        android.content.SharedPreferences sp = context.getSharedPreferences("md_diet", Context.MODE_PRIVATE);
-        int calories = sp.getInt("calories", 1850);
-
-        Calendar now = Calendar.getInstance();
-        int day = MealData.dayIndex(now);
-        String title = "وقت " + MealData.mealName(meal);
-        String body = MealData.mealText(day, meal, calories);
-
-        Intent open = new Intent(context, MainActivity.class);
-        PendingIntent openPi = PendingIntent.getActivity(
-                context, 2000 + meal, open,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        Notification.Builder b = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                ? new Notification.Builder(context, NotificationScheduler.CHANNEL_ID)
-                : new Notification.Builder(context);
-
-        b.setSmallIcon(android.R.drawable.ic_dialog_info)
-         .setContentTitle(title)
-         .setContentText(body)
-         .setStyle(new Notification.BigTextStyle().bigText(body))
-         .setAutoCancel(true)
-         .setContentIntent(openPi);
-
-        if (Build.VERSION.SDK_INT < 33 ||
-                context.checkSelfPermission("android.permission.POST_NOTIFICATIONS") == PackageManager.PERMISSION_GRANTED) {
-            ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE))
-                    .notify(3000 + meal, b.build());
-        }
-
-        String[] keys = {"breakfast","snack","lunch","dinner"};
-        String[] defaults = {"08:00","13:00","17:30","20:30"};
-        NotificationScheduler.scheduleMeal(context, meal, keys[meal], defaults[meal]);
-    }
+ public void onReceive(Context c,Intent i){NotificationScheduler.createChannels(c);if("water".equals(i.getStringExtra("type"))){sendWater(c);NotificationScheduler.scheduleWater(c);}else sendMeal(c,i.getIntExtra("mealIndex",0));}
+ private void sendMeal(Context c,int m){SharedPreferences sp=c.getSharedPreferences("md_diet",Context.MODE_PRIVATE);int cal=sp.getInt("calories",1850),d=MealData.dayIndex(Calendar.getInstance()),swap=sp.getInt("swap_"+d+"_"+m,-1);String title="وقت "+MealData.mealName(m),body=MealData.portionText(d,m,cal,swap);Intent open=new Intent(c,MainActivity.class);PendingIntent op=PendingIntent.getActivity(c,2000+m,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);Notification.Builder b=Build.VERSION.SDK_INT>=26?new Notification.Builder(c,NotificationScheduler.CHANNEL_ID):new Notification.Builder(c);b.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle(title).setContentText(body.replace("\n"," • ")).setStyle(new Notification.BigTextStyle().bigText(body)).setAutoCancel(true).setContentIntent(op);notifyIfAllowed(c,3000+m,b.build());String[] k={"breakfast","snack","lunch","dinner"},def={"08:00","13:00","17:30","20:30"};NotificationScheduler.scheduleMeal(c,m,k[m],def[m]);}
+ private void sendWater(Context c){Notification.Builder b=Build.VERSION.SDK_INT>=26?new Notification.Builder(c,NotificationScheduler.WATER_CHANNEL_ID):new Notification.Builder(c);b.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle("تذكير شرب الماء").setContentText("اشرب كوب مي إذا ما شربت من فترة.").setAutoCancel(true);notifyIfAllowed(c,5002,b.build());}
+ private void notifyIfAllowed(Context c,int id,Notification n){if(Build.VERSION.SDK_INT<33||c.checkSelfPermission("android.permission.POST_NOTIFICATIONS")==PackageManager.PERMISSION_GRANTED)((NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE)).notify(id,n);}
 }
