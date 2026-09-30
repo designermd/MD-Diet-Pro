@@ -4,7 +4,6 @@ import android.app.*;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import java.util.Calendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
