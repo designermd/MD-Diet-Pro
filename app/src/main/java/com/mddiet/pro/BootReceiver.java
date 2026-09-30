@@ -1,1 +1,12 @@
-package com.mddiet.pro; import android.content.*; public class BootReceiver extends BroadcastReceiver { public void onReceive(Context c,Intent i){NotificationScheduler.scheduleAll(c);} }
+package com.mddiet.pro;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
+public class BootReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        NotificationScheduler.scheduleAll(context);
+    }
+}

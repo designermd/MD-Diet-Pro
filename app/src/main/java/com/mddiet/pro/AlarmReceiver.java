@@ -1,8 +1,72 @@
 package com.mddiet.pro;
-import android.app.*;import android.content.*;import android.content.pm.PackageManager;import android.os.Build;import java.util.Calendar;
+
+import android.app.*;
+import android.content.*;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import java.util.Calendar;
+
 public class AlarmReceiver extends BroadcastReceiver {
- public void onReceive(Context c,Intent i){NotificationScheduler.createChannels(c);if("water".equals(i.getStringExtra("type"))){sendWater(c);NotificationScheduler.scheduleWater(c);}else sendMeal(c,i.getIntExtra("mealIndex",0));}
- private void sendMeal(Context c,int m){SharedPreferences sp=c.getSharedPreferences("md_diet",Context.MODE_PRIVATE);int cal=sp.getInt("calories",1850),d=MealData.dayIndex(Calendar.getInstance()),swap=sp.getInt("swap_"+d+"_"+m,-1);String title="وقت "+MealData.mealName(m),body=MealData.portionText(d,m,cal,swap);Intent open=new Intent(c,MainActivity.class);PendingIntent op=PendingIntent.getActivity(c,2000+m,open,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);Notification.Builder b=Build.VERSION.SDK_INT>=26?new Notification.Builder(c,NotificationScheduler.CHANNEL_ID):new Notification.Builder(c);b.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle(title).setContentText(body.replace("\n"," • ")).setStyle(new Notification.BigTextStyle().bigText(body)).setAutoCancel(true).setContentIntent(op);notifyIfAllowed(c,3000+m,b.build());String[] k={"breakfast","snack","lunch","dinner"},def={"08:00","13:00","17:30","20:30"};NotificationScheduler.scheduleMeal(c,m,k[m],def[m]);}
- private void sendWater(Context c){Notification.Builder b=Build.VERSION.SDK_INT>=26?new Notification.Builder(c,NotificationScheduler.WATER_CHANNEL_ID):new Notification.Builder(c);b.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle("تذكير شرب الماء").setContentText("اشرب كوب مي إذا ما شربت من فترة.").setAutoCancel(true);notifyIfAllowed(c,5002,b.build());}
- private void notifyIfAllowed(Context c,int id,Notification n){if(Build.VERSION.SDK_INT<33||c.checkSelfPermission("android.permission.POST_NOTIFICATIONS")==PackageManager.PERMISSION_GRANTED)((NotificationManager)c.getSystemService(Context.NOTIFICATION_SERVICE)).notify(id,n);}
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        NotificationScheduler.createChannels(context);
+        String type = intent.getStringExtra("type");
+        if ("water".equals(type)) {
+            sendWater(context);
+            NotificationScheduler.scheduleWater(context);
+        } else {
+            sendMeal(context, intent.getIntExtra("mealIndex", 0));
+        }
+    }
+
+    private void sendMeal(Context context, int meal) {
+        SharedPreferences sp = context.getSharedPreferences("md_diet", Context.MODE_PRIVATE);
+        int calories = sp.getInt("calories", 1850);
+        int day = MealData.dayIndex(Calendar.getInstance());
+        int swapIndex = sp.getInt("swap_" + day + "_" + meal, -1);
+
+        String title = "وقت " + MealData.mealName(meal);
+        String body = MealData.portionText(day, meal, calories, swapIndex);
+
+        Intent open = new Intent(context, MainActivity.class);
+        PendingIntent openPi = PendingIntent.getActivity(context, 2000 + meal, open,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        Notification.Builder b = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                ? new Notification.Builder(context, NotificationScheduler.CHANNEL_ID)
+                : new Notification.Builder(context);
+
+        b.setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(title)
+                .setContentText(body.replace("\n", " • "))
+                .setStyle(new Notification.BigTextStyle().bigText(body))
+                .setAutoCancel(true)
+                .setContentIntent(openPi);
+
+        notifyIfAllowed(context, 3000 + meal, b.build());
+
+        String[] keys = {"breakfast","snack","lunch","dinner"};
+        String[] defaults = {"08:00","13:00","17:30","20:30"};
+        NotificationScheduler.scheduleMeal(context, meal, keys[meal], defaults[meal]);
+    }
+
+    private void sendWater(Context context) {
+        Notification.Builder b = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                ? new Notification.Builder(context, NotificationScheduler.WATER_CHANNEL_ID)
+                : new Notification.Builder(context);
+
+        b.setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle("تذكير شرب الماء")
+                .setContentText("اشرب كوب مي إذا ما شربت من فترة.")
+                .setAutoCancel(true);
+
+        notifyIfAllowed(context, 5002, b.build());
+    }
+
+    private void notifyIfAllowed(Context context, int id, Notification n) {
+        if (Build.VERSION.SDK_INT < 33 ||
+                context.checkSelfPermission("android.permission.POST_NOTIFICATIONS") == PackageManager.PERMISSION_GRANTED) {
+            ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(id, n);
+        }
+    }
 }

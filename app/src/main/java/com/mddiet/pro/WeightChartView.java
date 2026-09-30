@@ -1,3 +1,53 @@
 package com.mddiet.pro;
-import android.content.Context;import android.graphics.*;import android.view.View;import java.util.*;
-public class WeightChartView extends View {private List<Float> values=new ArrayList<>();private Paint grid=new Paint(1),line=new Paint(1),text=new Paint(1),dot=new Paint(1);public WeightChartView(Context c){super(c);grid.setColor(Color.rgb(220,228,224));line.setColor(Color.rgb(31,122,90));line.setStrokeWidth(6f);line.setStyle(Paint.Style.STROKE);dot.setColor(Color.rgb(31,122,90));text.setColor(Color.GRAY);text.setTextSize(28f);}public void setValues(List<Float>v){values=new ArrayList<>(v);invalidate();}protected void onDraw(Canvas c){super.onDraw(c);int w=getWidth(),h=getHeight();for(int i=1;i<5;i++){float y=i*h/5f;c.drawLine(20,y,w-20,y,grid);}if(values.size()<2){c.drawText("سجّل وزنك مرتين أو أكثر",30,h/2f,text);return;}float min=Collections.min(values)-2,max=Collections.max(values)+2;Path p=new Path();for(int i=0;i<values.size();i++){float x=30+i*(w-60f)/(values.size()-1);float y=20+(max-values.get(i))*(h-50f)/(max-min);if(i==0)p.moveTo(x,y);else p.lineTo(x,y);c.drawCircle(x,y,7,dot);}c.drawPath(p,line);}}
+
+import android.content.Context;
+import android.graphics.*;
+import android.view.View;
+import java.util.*;
+
+public class WeightChartView extends View {
+    private List<Float> values = new ArrayList<>();
+    private Paint grid = new Paint(1), line = new Paint(1), text = new Paint(1), dot = new Paint(1);
+
+    public WeightChartView(Context context) {
+        super(context);
+        grid.setColor(Color.rgb(220,228,224));
+        line.setColor(Color.rgb(31,122,90));
+        line.setStrokeWidth(6f);
+        line.setStyle(Paint.Style.STROKE);
+        dot.setColor(Color.rgb(31,122,90));
+        dot.setStyle(Paint.Style.FILL);
+        text.setColor(Color.GRAY);
+        text.setTextSize(28f);
+        setMinimumHeight(320);
+    }
+
+    public void setValues(List<Float> v) {
+        values = new ArrayList<>(v);
+        invalidate();
+    }
+
+    @Override
+    protected void onDraw(Canvas c) {
+        super.onDraw(c);
+        int w = getWidth(), h = getHeight();
+        for (int i=1;i<5;i++) {
+            float y = i*h/5f;
+            c.drawLine(20,y,w-20,y,grid);
+        }
+        if (values.size() < 2) {
+            c.drawText("سجّل وزنك مرتين أو أكثر لعرض الرسم", 30, h/2f, text);
+            return;
+        }
+        float min = Collections.min(values) - 2;
+        float max = Collections.max(values) + 2;
+        Path p = new Path();
+        for (int i=0;i<values.size();i++) {
+            float x = 30 + i*(w-60f)/(values.size()-1);
+            float y = 20 + (max-values.get(i))*(h-50f)/(max-min);
+            if (i==0) p.moveTo(x,y); else p.lineTo(x,y);
+            c.drawCircle(x,y,7,dot);
+        }
+        c.drawPath(p,line);
+    }
+}
