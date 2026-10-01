@@ -1,4 +1,4 @@
-MD&SA Challenge Diet V3
+MD&SA Challenge Diet V3.1
 
 الجديد في V3:
 - اسم التطبيق صار MD&SA Challenge Diet.
@@ -19,3 +19,12 @@ MD&SA Challenge Diet V3
 4) Actions > Build APK > Run workflow.
 5) بعد النجاح نزّل Artifact باسم MDSA-Challenge-Diet-V3-APK.
 6) فك الضغط وثبّت app-debug.apk فوق النسخة الحالية.
+
+
+إضافات V3.1:
+- خطة كاملة من الاثنين للأحد.
+- بدائل لكل فطور وسناك وغداء وعشاء.
+- كميات تقريبية تتكيف مع هدف السعرات.
+- قائمة مشتريات أسبوعية.
+- قائمة تحضير مسبق للأسبوع.
+- زر تحديث المشتريات بعد تغيير هدف السعرات.

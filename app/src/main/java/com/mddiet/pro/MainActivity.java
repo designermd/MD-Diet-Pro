@@ -17,11 +17,11 @@ import java.util.*;
 
 public class MainActivity extends Activity {
     private SharedPreferences sp;
-    private LinearLayout root, mealsBox, loggedFoodsBox;
+    private LinearLayout root, mealsBox, loggedFoodsBox, weeklyBox;
     private TextView targetTv, eatenTv, freeTv, remainingTv, latestWeightTv, resultTv, planTitleTv;
     private WeightChartView chart;
     private EditText nameEt, ageEt, heightEt, weightEt, targetEt, tBreakfastEt, tSnackEt, tLunchEt, tDinnerEt;
-    private Spinner sexSp, activitySp, goalSp, foodSp;
+    private Spinner sexSp, activitySp, goalSp, foodSp, weeklyDaySp;
     private EditText customFoodEt, qtyEt, gramsEt, cal100Et;
     private Switch freeMealSwitch, waterSwitch;
     private int calories = 1850;
@@ -129,6 +129,8 @@ public class MainActivity extends Activity {
         buildHeader();
         buildDashboard();
         buildTodayMeals();
+        buildWeeklyPlan();
+        buildShoppingPrep();
         buildManualFood();
         buildProfile();
         buildNotifications();
@@ -139,6 +141,7 @@ public class MainActivity extends Activity {
         loadProfile();
         calculate(false);
         renderMeals();
+        renderWeeklyPlan();
         renderLoggedFoods();
         renderWeight();
         requestNotificationPermission();
@@ -154,7 +157,7 @@ public class MainActivity extends Activity {
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         logo.setLayoutParams(new LinearLayout.LayoutParams(-1, dp(180)));
         c.addView(logo);
-        TextView title = text("MD&SA Challenge Diet V3", 24, true);
+        TextView title = text("MD&SA Challenge Diet V3.1", 24, true);
         title.setTextColor(green);
         title.setGravity(Gravity.CENTER_HORIZONTAL);
         c.addView(title);
@@ -189,6 +192,68 @@ public class MainActivity extends Activity {
         c.addView(mealsBox);
         root.addView(c);
     }
+
+
+private void buildWeeklyPlan() {
+    LinearLayout c = card();
+    c.addView(text("خطة الأسبوع — 7 أيام", 20, true));
+    c.addView(text("اختَر اليوم وشوف الوجبة الأساسية والبدائل والكميات التقريبية حسب هدفك.", 13, false));
+    weeklyDaySp = spinner(new String[]{"الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"});
+    weeklyDaySp.setSelection(today);
+    c.addView(field("اليوم", weeklyDaySp));
+    weeklyBox = new LinearLayout(this);
+    weeklyBox.setOrientation(LinearLayout.VERTICAL);
+    c.addView(weeklyBox);
+    weeklyDaySp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { renderWeeklyPlan(); }
+        @Override public void onNothingSelected(AdapterView<?> parent) {}
+    });
+    root.addView(c);
+}
+
+private void renderWeeklyPlan() {
+    if (weeklyBox == null || weeklyDaySp == null) return;
+    int d = weeklyDaySp.getSelectedItemPosition();
+    weeklyBox.removeAllViews();
+    for (int m=0; m<4; m++) {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(12),dp(10),dp(12),dp(10));
+        box.setBackground(rounded(Color.rgb(249,251,250),14,border));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1,-2);
+        lp.setMargins(0,dp(5),0,dp(5));
+        box.setLayoutParams(lp);
+
+        TextView h = text(WeeklyPlanData.mealName(m), 17, true);
+        h.setTextColor(green);
+        box.addView(h);
+        box.addView(text("الأساسي: " + WeeklyPlanData.meal(d,m), 15, false));
+        box.addView(text(WeeklyPlanData.quantityHint(m, calories), 13, false));
+        TextView alt = text("بدائل: " + WeeklyPlanData.alternatives(d,m), 13, false);
+        alt.setTextColor(Color.DKGRAY);
+        box.addView(alt);
+        weeklyBox.addView(box);
+    }
+}
+
+private void buildShoppingPrep() {
+    LinearLayout c = card();
+    c.addView(text("مشتريات وتحضير الأسبوع", 20, true));
+    TextView shopping = text(WeeklyPlanData.shoppingList(calories), 14, false);
+    shopping.setTag("shopping_list");
+    c.addView(shopping);
+    TextView prep = text(WeeklyPlanData.prepList(), 14, false);
+    prep.setPadding(0,dp(12),0,0);
+    c.addView(prep);
+    Button refresh = button("حدّث الكميات حسب هدفي", true);
+    refresh.setLayoutParams(new LinearLayout.LayoutParams(-1, dp(48)));
+    c.addView(refresh);
+    refresh.setOnClickListener(v -> {
+        shopping.setText(WeeklyPlanData.shoppingList(calories));
+        Toast.makeText(this, "تم تحديث قائمة الأسبوع", Toast.LENGTH_SHORT).show();
+    });
+    root.addView(c);
+}
 
     private void buildManualFood() {
         LinearLayout c = card();
@@ -270,7 +335,7 @@ public class MainActivity extends Activity {
         resultTv = text("", 14, false);
         resultTv.setPadding(0,dp(10),0,0);
         c.addView(resultTv);
-        calcBtn.setOnClickListener(v -> { calculate(true); renderMeals(); renderLoggedFoods(); });
+        calcBtn.setOnClickListener(v -> { calculate(true); renderMeals(); renderWeeklyPlan(); renderLoggedFoods(); });
         root.addView(c);
     }
 
