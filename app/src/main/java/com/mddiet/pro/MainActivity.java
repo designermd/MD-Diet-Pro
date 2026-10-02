@@ -17,11 +17,11 @@ import java.util.*;
 
 public class MainActivity extends Activity {
     private SharedPreferences sp;
-    private LinearLayout root, mealsBox, loggedFoodsBox, weeklyBox;
+    private LinearLayout root, mealsBox, loggedFoodsBox, weeklyBox, familyBox;
     private TextView targetTv, eatenTv, freeTv, remainingTv, latestWeightTv, resultTv, planTitleTv;
     private WeightChartView chart;
     private EditText nameEt, ageEt, heightEt, weightEt, targetEt, tBreakfastEt, tSnackEt, tLunchEt, tDinnerEt;
-    private Spinner sexSp, activitySp, goalSp, foodSp, weeklyDaySp;
+    private Spinner sexSp, activitySp, goalSp, foodSp, weeklyDaySp, familyDaySp;
     private EditText customFoodEt, qtyEt, gramsEt, cal100Et;
     private Switch freeMealSwitch, waterSwitch;
     private int calories = 1850;

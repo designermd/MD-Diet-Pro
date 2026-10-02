@@ -48,3 +48,6 @@ V3.3:
 - Friday Shopping List موحّدة للعيلة + الدايت.
 - Friday Meal Prep مفصل.
 - كل ميزات V3.2: تسجيل أكل اليوم بالساعة والكمية والسعرات + نصيحة اليوم التالي.
+
+
+V3.3 FIX: Fixed missing familyDaySp and familyBox declarations that caused Java compilation errors.
