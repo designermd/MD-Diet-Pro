@@ -130,6 +130,7 @@ public class MainActivity extends Activity {
         buildDashboard();
         buildTodayMeals();
         buildWeeklyPlan();
+        buildFamilyMenu();
         buildShoppingPrep();
         buildManualFood();
         buildProfile();
@@ -142,6 +143,7 @@ public class MainActivity extends Activity {
         calculate(false);
         renderMeals();
         renderWeeklyPlan();
+        renderFamilyMenu();
         renderLoggedFoods();
         renderWeight();
         requestNotificationPermission();
@@ -152,12 +154,12 @@ public class MainActivity extends Activity {
         LinearLayout c = card();
         c.setGravity(Gravity.CENTER_HORIZONTAL);
         ImageView logo = new ImageView(this);
-        logo.setImageResource(R.drawable.mdsa_logo);
+        logo.setImageResource(R.drawable.md_designer_logo);
         logo.setAdjustViewBounds(true);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         logo.setLayoutParams(new LinearLayout.LayoutParams(-1, dp(180)));
         c.addView(logo);
-        TextView title = text("MD&SA Challenge Diet V3.1", 24, true);
+        TextView title = text("MD&SA Challenge Diet V3.3", 24, true);
         title.setTextColor(green);
         title.setGravity(Gravity.CENTER_HORIZONTAL);
         c.addView(title);
@@ -236,22 +238,50 @@ private void renderWeeklyPlan() {
     }
 }
 
+private void buildFamilyMenu() {
+    LinearLayout c = card();
+    c.addView(text("Family Menu — للعيلة", 20, true));
+    c.addView(text("هيدا القسم منفصل عن حساب كالوري الدايت. أفكار غداء وعشاء للعيلة والأولاد.", 13, false));
+    familyDaySp = spinner(new String[]{"الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"});
+    familyDaySp.setSelection(today);
+    c.addView(field("اليوم", familyDaySp));
+    familyBox = new LinearLayout(this);
+    familyBox.setOrientation(LinearLayout.VERTICAL);
+    c.addView(familyBox);
+    familyDaySp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { renderFamilyMenu(); }
+        @Override public void onNothingSelected(AdapterView<?> parent) {}
+    });
+    root.addView(c);
+}
+
+private void renderFamilyMenu() {
+    if (familyBox == null || familyDaySp == null) return;
+    int d = familyDaySp.getSelectedItemPosition();
+    familyBox.removeAllViews();
+    LinearLayout box = new LinearLayout(this);
+    box.setOrientation(LinearLayout.VERTICAL);
+    box.setPadding(dp(12),dp(12),dp(12),dp(12));
+    box.setBackground(rounded(Color.rgb(249,251,250),14,border));
+    TextView lunch = text("غداء العيلة", 17, true); lunch.setTextColor(green); box.addView(lunch);
+    box.addView(text(WeeklyPlanData.familyLunch(d), 15, false));
+    TextView dinner = text("عشاء خفيف / فكرة ثانية", 17, true); dinner.setTextColor(green); dinner.setPadding(0,dp(10),0,dp(4)); box.addView(dinner);
+    box.addView(text(WeeklyPlanData.familyDinner(d), 15, false));
+    TextView note = text("للطفل الصغير: قدّم الأكل بقطع صغيرة مناسبة، وتجنّب المكسرات الكاملة والفشار بسبب خطر الاختناق.", 12, false);
+    note.setTextColor(Color.DKGRAY); note.setPadding(0,dp(10),0,0); box.addView(note);
+    familyBox.addView(box);
+}
+
 private void buildShoppingPrep() {
     LinearLayout c = card();
-    c.addView(text("مشتريات وتحضير الأسبوع", 20, true));
-    TextView shopping = text(WeeklyPlanData.shoppingList(calories), 14, false);
-    shopping.setTag("shopping_list");
+    c.addView(text("Friday Shopping List — Diet + Family", 20, true));
+    TextView shopping = text(WeeklyPlanData.unifiedShoppingList(), 14, false);
     c.addView(shopping);
-    TextView prep = text(WeeklyPlanData.prepList(), 14, false);
-    prep.setPadding(0,dp(12),0,0);
+    TextView prepTitle = text("Friday Meal Prep", 19, true);
+    prepTitle.setPadding(0,dp(16),0,dp(4));
+    c.addView(prepTitle);
+    TextView prep = text(WeeklyPlanData.fridayPrep(), 14, false);
     c.addView(prep);
-    Button refresh = button("حدّث الكميات حسب هدفي", true);
-    refresh.setLayoutParams(new LinearLayout.LayoutParams(-1, dp(48)));
-    c.addView(refresh);
-    refresh.setOnClickListener(v -> {
-        shopping.setText(WeeklyPlanData.shoppingList(calories));
-        Toast.makeText(this, "تم تحديث قائمة الأسبوع", Toast.LENGTH_SHORT).show();
-    });
     root.addView(c);
 }
 
@@ -335,7 +365,7 @@ private void buildShoppingPrep() {
         resultTv = text("", 14, false);
         resultTv.setPadding(0,dp(10),0,0);
         c.addView(resultTv);
-        calcBtn.setOnClickListener(v -> { calculate(true); renderMeals(); renderWeeklyPlan(); renderLoggedFoods(); });
+        calcBtn.setOnClickListener(v -> { calculate(true); renderMeals(); renderWeeklyPlan(); renderFamilyMenu(); renderLoggedFoods(); });
         root.addView(c);
     }
 

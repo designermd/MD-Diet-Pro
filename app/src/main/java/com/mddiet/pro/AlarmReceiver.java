@@ -36,7 +36,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 ? new Notification.Builder(context, NotificationScheduler.CHANNEL_ID)
                 : new Notification.Builder(context);
 
-        b.setSmallIcon(android.R.drawable.ic_dialog_info)
+        b.setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle(title)
                 .setContentText(body.replace("\n", " • "))
                 .setStyle(new Notification.BigTextStyle().bigText(body))
@@ -55,7 +55,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 ? new Notification.Builder(context, NotificationScheduler.WATER_CHANNEL_ID)
                 : new Notification.Builder(context);
 
-        b.setSmallIcon(android.R.drawable.ic_dialog_info)
+        b.setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle("تذكير شرب الماء")
                 .setContentText("اشرب كوب مي إذا ما شربت من فترة.")
                 .setAutoCancel(true);
